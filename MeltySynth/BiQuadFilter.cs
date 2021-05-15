@@ -6,7 +6,7 @@ namespace MeltySynth
     {
         private static readonly float resonancePeakOffset = 1 - 1 / MathF.Sqrt(2);
 
-        private Synthesizer synthesizer;
+        private readonly Synthesizer synthesizer;
 
         private bool active;
 
@@ -40,6 +40,8 @@ namespace MeltySynth
             {
                 active = true;
 
+                // This equation gives the Q value which makes the desired resonance peak.
+                // The error of the resultant peak height is less than 3%.
                 var q = resonance - resonancePeakOffset / (1 + 6 * (resonance - 1));
 
                 var w = 2 * MathF.PI * cutoffFrequency / synthesizer.SampleRate;

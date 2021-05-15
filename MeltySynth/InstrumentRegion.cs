@@ -4,13 +4,19 @@ using System.Linq;
 
 namespace MeltySynth
 {
+    /// <summary>
+    /// Represents an instrument region.
+    /// </summary>
+    /// <remarks>
+    /// An instrument region contains all the parameters necessary to synthesize a note.
+    /// </remarks>
     public sealed class InstrumentRegion
     {
         internal static readonly InstrumentRegion Default = new InstrumentRegion(Instrument.Default, null, null, null);
 
-        private SampleHeader sample;
+        private readonly SampleHeader sample;
 
-        private short[] gps;
+        private readonly short[] gps;
 
         private InstrumentRegion(Instrument instrument, GeneratorParameter[] global, GeneratorParameter[] local, SampleHeader[] samples)
         {
@@ -104,6 +110,14 @@ namespace MeltySynth
             gps[(int)parameter.Type] = (short)parameter.Value;
         }
 
+        /// <summary>
+        /// Checks if the region covers the given key and velocity.
+        /// </summary>
+        /// <param name="key">The key of a note.</param>
+        /// <param name="velocity">The velocity of a note.</param>
+        /// <returns>
+        /// <c>true</c> if the region covers the given key and velocity.
+        /// </returns>
         public bool Contains(int key, int velocity)
         {
             var containsKey = KeyRangeStart <= key && key <= KeyRangeEnd;
@@ -111,6 +125,12 @@ namespace MeltySynth
             return containsKey && containsVelocity;
         }
 
+        /// <summary>
+        /// Gets the string representation of the region.
+        /// </summary>
+        /// <returns>
+        /// The string representation of the region.
+        /// </returns>
         public override string ToString()
         {
             return $"{sample.Name} (Key: {KeyRangeStart}-{KeyRangeEnd}, Velocity: {VelocityRangeStart}-{VelocityRangeEnd})";
@@ -118,6 +138,9 @@ namespace MeltySynth
 
         internal short this[GeneratorParameterType generatortType] => gps[(int)generatortType];
 
+        /// <summary>
+        /// The sample header corresponding to the region.
+        /// </summary>
         public SampleHeader Sample => sample;
 
         public int SampleStart => sample.Start + StartAddressOffset;
@@ -134,15 +157,15 @@ namespace MeltySynth
         public int VibratoLfoToPitch => this[GeneratorParameterType.VibratoLfoToPitch];
         public int ModulationEnvelopeToPitch => this[GeneratorParameterType.ModulationEnvelopeToPitch];
         public float InitialFilterCutoffFrequency => SoundFontMath.CentsToHertz(this[GeneratorParameterType.InitialFilterCutoffFrequency]);
-        public float InitialFilterQ => this[GeneratorParameterType.InitialFilterQ] / 10F;
+        public float InitialFilterQ => 0.1F * this[GeneratorParameterType.InitialFilterQ];
         public int ModulationLfoToFilterCutoffFrequency => this[GeneratorParameterType.ModulationLfoToFilterCutoffFrequency];
         public int ModulationEnvelopeToFilterCutoffFrequency => this[GeneratorParameterType.ModulationEnvelopeToFilterCutoffFrequency];
 
-        public float ModulationLfoToVolume => this[GeneratorParameterType.ModulationLfoToVolume] / 10F;
+        public float ModulationLfoToVolume => 0.1F * this[GeneratorParameterType.ModulationLfoToVolume];
 
-        public float ChorusEffectsSend => this[GeneratorParameterType.ChorusEffectsSend] / 10F;
-        public float ReverbEffectsSend => this[GeneratorParameterType.ReverbEffectsSend] / 10F;
-        public float Pan => this[GeneratorParameterType.Pan] / 10F;
+        public float ChorusEffectsSend => 0.1F * this[GeneratorParameterType.ChorusEffectsSend];
+        public float ReverbEffectsSend => 0.1F * this[GeneratorParameterType.ReverbEffectsSend];
+        public float Pan => 0.1F * this[GeneratorParameterType.Pan];
 
         public float DelayModulationLfo => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.DelayModulationLfo]);
         public float FrequencyModulationLfo => SoundFontMath.CentsToHertz(this[GeneratorParameterType.FrequencyModulationLfo]);
@@ -152,7 +175,7 @@ namespace MeltySynth
         public float AttackModulationEnvelope => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.AttackModulationEnvelope]);
         public float HoldModulationEnvelope => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.HoldModulationEnvelope]);
         public float DecayModulationEnvelope => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.DecayModulationEnvelope]);
-        public float SustainModulationEnvelope => this[GeneratorParameterType.SustainModulationEnvelope] / 10F;
+        public float SustainModulationEnvelope => 0.1F * this[GeneratorParameterType.SustainModulationEnvelope];
         public float ReleaseModulationEnvelope => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.ReleaseModulationEnvelope]);
         public int KeyNumberToModulationEnvelopeHold => this[GeneratorParameterType.KeyNumberToModulationEnvelopeHold];
         public int KeyNumberToModulationEnvelopeDecay => this[GeneratorParameterType.KeyNumberToModulationEnvelopeDecay];
@@ -160,7 +183,7 @@ namespace MeltySynth
         public float AttackVolumeEnvelope => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.AttackVolumeEnvelope]);
         public float HoldVolumeEnvelope => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.HoldVolumeEnvelope]);
         public float DecayVolumeEnvelope => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.DecayVolumeEnvelope]);
-        public float SustainVolumeEnvelope => this[GeneratorParameterType.SustainVolumeEnvelope] / 10F;
+        public float SustainVolumeEnvelope => 0.1F * this[GeneratorParameterType.SustainVolumeEnvelope];
         public float ReleaseVolumeEnvelope => SoundFontMath.TimecentsToSeconds(this[GeneratorParameterType.ReleaseVolumeEnvelope]);
         public int KeyNumberToVolumeEnvelopeHold => this[GeneratorParameterType.KeyNumberToVolumeEnvelopeHold];
         public int KeyNumberToVolumeEnvelopeDecay => this[GeneratorParameterType.KeyNumberToVolumeEnvelopeDecay];
@@ -170,7 +193,7 @@ namespace MeltySynth
         public int VelocityRangeStart => this[GeneratorParameterType.VelocityRange] & 0xFF;
         public int VelocityRangeEnd => (this[GeneratorParameterType.VelocityRange] >> 8) & 0xFF;
 
-        public float InitialAttenuation => this[GeneratorParameterType.InitialAttenuation] / 10F;
+        public float InitialAttenuation => 0.1F * this[GeneratorParameterType.InitialAttenuation];
 
         public int CoarseTune => this[GeneratorParameterType.CoarseTune];
         public int FineTune => this[GeneratorParameterType.FineTune] + sample.PitchCorrection;

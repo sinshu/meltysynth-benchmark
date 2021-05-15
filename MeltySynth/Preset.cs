@@ -4,17 +4,20 @@ using System.IO;
 
 namespace MeltySynth
 {
+    /// <summary>
+    /// Represents a preset in the SoundFont.
+    /// </summary>
     public sealed class Preset
     {
         internal static readonly Preset Default = new Preset();
 
-        private string name;
-        private int patchNumber;
-        private int bankNumber;
-        private int library;
-        private int genre;
-        private int morphology;
-        private ImmutableArray<PresetRegion> regions;
+        private readonly string name;
+        private readonly int patchNumber;
+        private readonly int bankNumber;
+        private readonly int library;
+        private readonly int genre;
+        private readonly int morphology;
+        private readonly ImmutableArray<PresetRegion> regions;
 
         private Preset()
         {
@@ -60,17 +63,39 @@ namespace MeltySynth
             return presets;
         }
 
+        /// <summary>
+        /// Gets the name of the preset.
+        /// </summary>
+        /// <returns>
+        /// The name of the preset.
+        /// </returns>
         public override string ToString()
         {
             return name;
         }
 
+        /// <summary>
+        /// The name of the preset.
+        /// </summary>
         public string Name => name;
+
+        /// <summary>
+        /// The patch number of the preset.
+        /// </summary>
         public int PatchNumber => patchNumber;
+
+        /// <summary>
+        /// The bank number of the preset.
+        /// </summary>
         public int BankNumber => bankNumber;
+
         public int Library => library;
         public int Genre => genre;
         public int Morphology => morphology;
+
+        /// <summary>
+        /// The regions of the preset.
+        /// </summary>
         public ImmutableArray<PresetRegion> Regions => regions;
     }
 }

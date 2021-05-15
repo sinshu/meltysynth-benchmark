@@ -4,7 +4,7 @@ namespace MeltySynth
 {
     internal sealed class ModulationEnvelope
     {
-        private Synthesizer synthesizer;
+        private readonly Synthesizer synthesizer;
 
         private double attackSlope;
         private double decaySlope;
@@ -42,7 +42,7 @@ namespace MeltySynth
             decayEndTime = decayStartTime + decay;
             releaseEndTime = release;
 
-            sustainLevel = sustain;
+            sustainLevel = Math.Clamp(sustain, 0F, 1F);
             releaseLevel = 0;
 
             processedSampleCount = 0;

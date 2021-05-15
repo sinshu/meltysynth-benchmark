@@ -3,20 +3,23 @@ using System.IO;
 
 namespace MeltySynth
 {
+    /// <summary>
+    /// Represents a sample in the SoundFont.
+    /// </summary>
     public sealed class SampleHeader
     {
         internal static readonly SampleHeader Default = new SampleHeader();
 
-        private string name;
-        private int start;
-        private int end;
-        private int startLoop;
-        private int endLoop;
-        private int sampleRate;
-        private byte originalPitch;
-        private sbyte pitchCorrection;
-        private ushort link;
-        private SampleType type;
+        private readonly string name;
+        private readonly int start;
+        private readonly int end;
+        private readonly int startLoop;
+        private readonly int endLoop;
+        private readonly int sampleRate;
+        private readonly byte originalPitch;
+        private readonly sbyte pitchCorrection;
+        private readonly ushort link;
+        private readonly SampleType type;
 
         private SampleHeader()
         {
@@ -57,19 +60,57 @@ namespace MeltySynth
             return headers;
         }
 
+        /// <summary>
+        /// Gets the name of the sample.
+        /// </summary>
+        /// <returns>
+        /// The name of the sample.
+        /// </returns>
         public override string ToString()
         {
             return name;
         }
 
+        /// <summary>
+        /// The name of the sample.
+        /// </summary>
         public string Name => name;
+
+        /// <summary>
+        /// The start point of the sample in the sample data.
+        /// </summary>
         public int Start => start;
+
+        /// <summary>
+        /// The end point of the sample in the sample data.
+        /// </summary>
         public int End => end;
+
+        /// <summary>
+        /// The loop start point of the sample in the sample data.
+        /// </summary>
         public int StartLoop => startLoop;
+
+        /// <summary>
+        /// The loop end point of the sample in the sample data.
+        /// </summary>
         public int EndLoop => endLoop;
+
+        /// <summary>
+        /// The sample rate of the sample.
+        /// </summary>
         public int SampleRate => sampleRate;
+
+        /// <summary>
+        /// The key number of the recorded pitch of the sample.
+        /// </summary>
         public byte OriginalPitch => originalPitch;
+
+        /// <summary>
+        /// The pitch correction in cents that should be applied to the sample on playback.
+        /// </summary>
         public sbyte PitchCorrection => pitchCorrection;
+
         public ushort Link => link;
         public SampleType Type => type;
     }

@@ -4,24 +4,25 @@ namespace MeltySynth
 {
     internal sealed class Voice
     {
-        private const float panToAngle = MathF.PI / 200F;
+        private readonly Synthesizer synthesizer;
 
-        private Synthesizer synthesizer;
+        private readonly VolumeEnvelope volEnv;
+        private readonly ModulationEnvelope modEnv;
 
-        private VolumeEnvelope volEnv;
-        private ModulationEnvelope modEnv;
+        private readonly Lfo vibLfo;
+        private readonly Lfo modLfo;
 
-        private Lfo vibLfo;
-        private Lfo modLfo;
+        private readonly Generator generator;
+        private readonly BiQuadFilter filter;
 
-        private Generator generator;
-        private BiQuadFilter filter;
+        private readonly float[] block;
 
-        private float[] block;
         private float mixGainLeft;
         private float mixGainRight;
 
-        private InstrumentRegion instrumentRegion;
+        private float reverbSend;
+        private float chorusSend;
+
         private int exclusiveClass;
         private int channel;
         private int key;
@@ -38,8 +39,14 @@ namespace MeltySynth
 
         private int modLfoToCutoff;
         private int modEnvToCutoff;
+        private bool dynamicCutoff;
+
+        private float modLfoToVolume;
+        private bool dynamicVolume;
 
         private float instrumentPan;
+        private float instrumentReverb;
+        private float instrumentChorus;
 
         private VoiceState voiceState;
         private int voiceLength;
@@ -62,7 +69,6 @@ namespace MeltySynth
 
         public void Start(RegionPair region, int channel, int key, int velocity)
         {
-            this.instrumentRegion = region.Instrument;
             this.exclusiveClass = region.ExclusiveClass;
             this.channel = channel;
             this.key = key;
@@ -70,7 +76,11 @@ namespace MeltySynth
 
             if (velocity > 0)
             {
-                var decibels = 2 * SoundFontMath.LinearToDecibels(velocity / 127F) - region.InitialAttenuation - region.InitialFilterQ / 2;
+                // According to the Polyphone's implementation, the initial attenuation should be reduced to 40%.
+                // I'm not sure why, but this indeed improves the loudness variability.
+                var sampleAttenuation = 0.4F * region.InitialAttenuation;
+                var filterAttenuation = 0.5F * region.InitialFilterQ;
+                var decibels = 2 * SoundFontMath.LinearToDecibels(velocity / 127F) - sampleAttenuation - filterAttenuation;
                 noteGain = SoundFontMath.DecibelsToLinear(decibels);
             }
             else
@@ -87,14 +97,20 @@ namespace MeltySynth
 
             modLfoToCutoff = region.ModulationLfoToFilterCutoffFrequency;
             modEnvToCutoff = region.ModulationEnvelopeToFilterCutoffFrequency;
+            dynamicCutoff = modLfoToCutoff != 0 || modEnvToCutoff != 0;
+
+            modLfoToVolume = region.ModulationLfoToVolume;
+            dynamicVolume = modLfoToVolume > 0.05F;
 
             instrumentPan = Math.Clamp(region.Pan, -50F, 50F);
+            instrumentReverb = 0.01F * region.ReverbEffectsSend;
+            instrumentChorus = 0.01F * region.ChorusEffectsSend;
 
             volEnv.Start(region, key, velocity);
             modEnv.Start(region, key, velocity);
-            generator.Start(synthesizer.SoundFont.WaveData, region);
             vibLfo.StartVibrato(region, key, velocity);
             modLfo.StartModulation(region, key, velocity);
+            generator.Start(synthesizer.SoundFont.WaveData, region);
             filter.ClearBuffer();
             filter.SetLowPassFilter(cutoff, resonance);
 
@@ -144,7 +160,7 @@ namespace MeltySynth
                 return false;
             }
 
-            if (modLfoToCutoff != 0 || modEnvToCutoff != 0)
+            if (dynamicCutoff)
             {
                 var cents = modLfoToCutoff * modLfo.Value + modEnvToCutoff * modEnv.Value;
                 var factor = SoundFontMath.CentsToMultiplyingFactor(cents);
@@ -152,10 +168,18 @@ namespace MeltySynth
             }
             filter.Process(block);
 
-            var channelGain = channelInfo.Volume * channelInfo.Expression;
-            var mixGain = noteGain * channelGain * volEnv.Value;
+            // According to the GM spec, the following value should be squared.
+            var ve = channelInfo.Volume * channelInfo.Expression;
+            var channelGain = ve * ve;
 
-            var angle = panToAngle * (channelInfo.Pan + instrumentPan + 50F);
+            var mixGain = noteGain * channelGain * volEnv.Value;
+            if (dynamicVolume)
+            {
+                var decibels = modLfoToVolume * modLfo.Value;
+                mixGain *= SoundFontMath.DecibelsToLinear(decibels);
+            }
+
+            var angle = (MathF.PI / 200F) * (channelInfo.Pan + instrumentPan + 50F);
             if (angle <= 0F)
             {
                 mixGainLeft = mixGain;
@@ -172,6 +196,9 @@ namespace MeltySynth
                 mixGainRight = mixGain * MathF.Sin(angle);
             }
 
+            reverbSend = Math.Clamp(channelInfo.ReverbSend + instrumentReverb, 0F, 1F);
+            chorusSend = Math.Clamp(channelInfo.ChorusSend + instrumentChorus, 0F, 1F);
+
             voiceLength += synthesizer.BlockSize;
 
             return true;
@@ -179,7 +206,7 @@ namespace MeltySynth
 
         private void ReleaseIfNecessary(Channel channelInfo)
         {
-            if (voiceLength < synthesizer.MinimumVoiceLength)
+            if (voiceLength < synthesizer.MinimumVoiceDuration)
             {
                 return;
             }
@@ -213,7 +240,9 @@ namespace MeltySynth
         public float MixGainLeft => mixGainLeft;
         public float MixGainRight => mixGainRight;
 
-        public InstrumentRegion Region => instrumentRegion;
+        public float ReverbSend => reverbSend;
+        public float ChorusSend => chorusSend;
+
         public int ExclusiveClass => exclusiveClass;
         public int Channel => channel;
         public int Key => key;

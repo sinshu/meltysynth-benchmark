@@ -15,12 +15,16 @@ public class MeltySynthTest : IDisposable
 
     private ISampleWriter writer;
 
-    public MeltySynthTest()
+    public MeltySynthTest(bool enableEffects)
     {
         soundFont = new SoundFont(Settings.SoundFontPath);
         midiFile = new MidiFile(Settings.MidiFilePath);
 
-        synthesizer = new Synthesizer(soundFont, Settings.SampleRate);
+        var settings = new SynthesizerSettings(Settings.SampleRate);
+        settings.EnableReverbAndChorus = enableEffects;
+        settings.MaximumPolyphony = 40;
+
+        synthesizer = new Synthesizer(soundFont, settings);
         sequencer = new MidiFileSequencer(synthesizer);
 
         sequencer.Play(midiFile, true);
@@ -29,9 +33,11 @@ public class MeltySynthTest : IDisposable
         right = new float[Settings.BlockSize];
         writeBuffer = new float[2 * Settings.BlockSize];
 
+        var name = enableEffects ? "meltysynth_output.wav" : "meltysynth_output_noeffect.wav";
+
         if (Settings.OutputFile)
         {
-            writer = new NAudioSampleWriter("meltysynth_output.wav", Settings.WaveFormat);
+            writer = new NAudioSampleWriter(name, Settings.WaveFormat);
         }
         else
         {
@@ -44,7 +50,7 @@ public class MeltySynthTest : IDisposable
         for (var i = 0; i < Settings.BlockCount; i++)
         {
             sequencer.ProcessEvents();
-            synthesizer.RenderStereo(left, right);
+            synthesizer.Render(left, right);
             for (var t = 0; t < Settings.BlockSize; t++)
             {
                 writeBuffer[2 * t] = left[t];

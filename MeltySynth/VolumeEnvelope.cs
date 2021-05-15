@@ -4,7 +4,7 @@ namespace MeltySynth
 {
     internal sealed class VolumeEnvelope
     {
-        private Synthesizer synthesizer;
+        private readonly Synthesizer synthesizer;
 
         private double attackSlope;
         private double decaySlope;
@@ -40,7 +40,7 @@ namespace MeltySynth
             decayStartTime = holdStartTime + hold;
             releaseStartTime = 0;
 
-            sustainLevel = sustain;
+            sustainLevel = Math.Clamp(sustain, 0F, 1F);
             releaseLevel = 0;
 
             processedSampleCount = 0;
@@ -117,12 +117,12 @@ namespace MeltySynth
                     return true;
 
                 case Stage.Decay:
-                    value = Math.Max((float)Math.Exp(decaySlope * (currentTime - decayStartTime)), sustainLevel);
+                    value = Math.Max((float)SoundFontMath.ExpCutoff(decaySlope * (currentTime - decayStartTime)), sustainLevel);
                     priority = 1F + value;
                     return value > SoundFontMath.NonAudible;
 
                 case Stage.Release:
-                    value = (float)(releaseLevel * Math.Exp(releaseSlope * (currentTime - releaseStartTime)));
+                    value = (float)(releaseLevel * SoundFontMath.ExpCutoff(releaseSlope * (currentTime - releaseStartTime)));
                     priority = value;
                     return value > SoundFontMath.NonAudible;
 

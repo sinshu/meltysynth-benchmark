@@ -4,38 +4,51 @@ using BenchmarkDotNet.Attributes;
 [Config(typeof(BenchmarkConfig))]
 public class Runner : IDisposable
 {
-    private MeltySynthTest meltySynthTest;
     private CSharpSynthTest cSharpSynthTest;
+    private MeltySynthTest meltySynthTest;
+    private MeltySynthTest meltySynthTestEffect;
 
     public Runner()
     {
-        meltySynthTest = new MeltySynthTest();
+        meltySynthTest = new MeltySynthTest(false);
+        meltySynthTestEffect = new MeltySynthTest(true);
         cSharpSynthTest = new CSharpSynthTest();
     }
 
     [Benchmark]
-    public void RunMeltySynth()
+    public void MeltySynth()
     {
         meltySynthTest.Run();
     }
 
     [Benchmark]
-    public void RunCSharpSynth()
+    public void MeltySynthReverbAndChorus()
+    {
+        meltySynthTestEffect.Run();
+    }
+
+    [Benchmark]
+    public void CSharpSynth()
     {
         cSharpSynthTest.Run();
     }
 
     public void Dispose()
     {
+        if (cSharpSynthTest != null)
+        {
+            cSharpSynthTest.Dispose();
+            cSharpSynthTest = null;
+        }
         if (meltySynthTest != null)
         {
             meltySynthTest.Dispose();
             meltySynthTest = null;
         }
-        if (cSharpSynthTest != null)
+        if (meltySynthTestEffect != null)
         {
-            cSharpSynthTest.Dispose();
-            cSharpSynthTest = null;
+            meltySynthTestEffect.Dispose();
+            meltySynthTestEffect = null;
         }
     }
 }
