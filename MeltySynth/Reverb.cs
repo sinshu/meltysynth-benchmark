@@ -5,7 +5,7 @@ using System;
 
 namespace MeltySynth
 {
-    public sealed class Reverb
+    internal sealed class Reverb
     {
         private const float fixedGain = 0.015F;
         private const float scaleWet = 3F;
@@ -54,7 +54,7 @@ namespace MeltySynth
         private float wet, wet1, wet2;
         private float width;
 
-        public Reverb(int sampleRate)
+        internal Reverb(int sampleRate)
         {
             cfsL = new CombFilter[]
             {

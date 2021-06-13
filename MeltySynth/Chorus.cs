@@ -2,7 +2,7 @@
 
 namespace MeltySynth
 {
-    public sealed class Chorus
+    internal sealed class Chorus
     {
         private readonly float[] bufferL;
         private readonly float[] bufferR;
@@ -16,7 +16,7 @@ namespace MeltySynth
         private int delayTableIndexL;
         private int delayTableIndexR;
 
-        public Chorus(int sampleRate, double delay, double depth, double frequency)
+        internal Chorus(int sampleRate, double delay, double depth, double frequency)
         {
             bufferL = new float[(int)(sampleRate * (delay + depth)) + 2];
             bufferR = new float[(int)(sampleRate * (delay + depth)) + 2];
@@ -42,7 +42,7 @@ namespace MeltySynth
             for (var t = 0; t < outputLeft.Length; t++)
             {
                 var position = bufferIndexL - (double)delayTableL[delayTableIndexL];
-                if (position < 0F)
+                if (position < 0.0)
                 {
                     position += bufferL.Length;
                 }
@@ -77,7 +77,7 @@ namespace MeltySynth
             for (var t = 0; t < outputRight.Length; t++)
             {
                 var position = bufferIndexR - (double)delayTableR[delayTableIndexR];
-                if (position < 0F)
+                if (position < 0.0)
                 {
                     position += bufferR.Length;
                 }
