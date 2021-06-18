@@ -12,6 +12,6 @@ WarmupCount=3
 ```
 |                    Method |    Mean |    Error |   StdDev | Gen 0 | Gen 1 | Gen 2 | Allocated |
 |-------------------------- |--------:|---------:|---------:|------:|------:|------:|----------:|
-|                MeltySynth | 1.322 s | 0.2844 s | 0.0156 s |     - |     - |     - |         - |
-| MeltySynthReverbAndChorus | 2.124 s | 0.4925 s | 0.0270 s |     - |     - |     - |         - |
-|               CSharpSynth | 2.454 s | 0.6218 s | 0.0341 s |     - |     - |     - | 1063984 B |
+|                MeltySynth | 1.304 s | 0.2173 s | 0.0119 s |     - |     - |     - |         - |
+| MeltySynthReverbAndChorus | 2.106 s | 0.4839 s | 0.0265 s |     - |     - |     - |         - |
+|               CSharpSynth | 2.553 s | 0.2400 s | 0.0132 s |     - |     - |     - | 1063944 B |
