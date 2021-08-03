@@ -49,8 +49,7 @@ public class MeltySynthTest : IDisposable
     {
         for (var i = 0; i < Settings.BlockCount; i++)
         {
-            sequencer.ProcessEvents();
-            synthesizer.Render(left, right);
+            sequencer.Render(left, right);
             for (var t = 0; t < Settings.BlockSize; t++)
             {
                 writeBuffer[2 * t] = left[t];
