@@ -9,13 +9,11 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        /*
-        var runner = new Runner();
-        runner.CSharpSynth();
-        runner.MeltySynth();
-        runner.MeltySynthReverbAndChorus();
-        runner.Dispose();
-        */
+        //var runner = new Runner();
+        //runner.CSharpSynth();
+        //runner.MeltySynth();
+        //runner.MeltySynthReverbAndChorus();
+        //runner.Dispose();
         BenchmarkRunner.Run<Runner>();
     }
 }
