@@ -4,12 +4,12 @@ namespace MeltySynth
 {
     internal static class RegionEx
     {
-        public static void Start(this Generator generator, short[] data, InstrumentRegion region)
+        public static void Start(this Oscillator oscillator, short[] data, InstrumentRegion region)
         {
-            Start(generator, data, new RegionPair(PresetRegion.Default, region));
+            Start(oscillator, data, new RegionPair(PresetRegion.Default, region));
         }
 
-        public static void Start(this Generator generator, short[] data, RegionPair region)
+        public static void Start(this Oscillator oscillator, short[] data, RegionPair region)
         {
             var sampleRate = region.Instrument.Sample.SampleRate;
             var loopMode = region.SampleModes;
@@ -22,7 +22,7 @@ namespace MeltySynth
             var fineTune = region.FineTune;
             var scaleTuning = region.ScaleTuning;
 
-            generator.Start(data, loopMode, sampleRate, start, end, startLoop, endLoop, rootKey, coarseTune, fineTune, scaleTuning);
+            oscillator.Start(data, loopMode, sampleRate, start, end, startLoop, endLoop, rootKey, coarseTune, fineTune, scaleTuning);
         }
 
         public static void Start(this VolumeEnvelope envelope, InstrumentRegion region, int key, int velocity)
@@ -37,7 +37,7 @@ namespace MeltySynth
             var hold = region.HoldVolumeEnvelope * SoundFontMath.KeyNumberToMultiplyingFactor(region.KeyNumberToVolumeEnvelopeHold, key);
             var decay = region.DecayVolumeEnvelope * SoundFontMath.KeyNumberToMultiplyingFactor(region.KeyNumberToVolumeEnvelopeDecay, key);
             var sustain = SoundFontMath.DecibelsToLinear(-region.SustainVolumeEnvelope);
-            var release = region.ReleaseVolumeEnvelope;
+            var release = Math.Max(region.ReleaseVolumeEnvelope, 0.01F);
 
             envelope.Start(delay, attack, hold, decay, sustain, release);
         }
