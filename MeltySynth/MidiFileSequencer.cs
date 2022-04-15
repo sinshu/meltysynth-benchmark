@@ -90,7 +90,7 @@ namespace MeltySynth
                 {
                     ProcessEvents();
                     blockWrote = 0;
-                    currentTime += TimeSpan.FromSeconds((double)speed * synthesizer.BlockSize / synthesizer.SampleRate);
+                    currentTime += MidiFile.GetTimeSpanFromSeconds((double)speed * synthesizer.BlockSize / synthesizer.SampleRate);
                 }
 
                 var srcRem = synthesizer.BlockSize - blockWrote;
@@ -147,6 +147,33 @@ namespace MeltySynth
                 currentTime = midiFile.Times[loopIndex];
                 msgIndex = loopIndex;
                 synthesizer.NoteOffAll(false);
+            }
+        }
+
+        /// <summary>
+        /// Gets the current playback position.
+        /// </summary>
+        public TimeSpan Position => currentTime;
+
+        /// <summary>
+        /// Gets a value that indicates whether the current playback position is at the end of the sequence.
+        /// </summary>
+        /// <remarks>
+        /// If the <see cref="Play(MidiFile, bool)">Play</see> method has not yet been called, this value is true.
+        /// This value will never be <c>true</c> if loop playback is enabled.
+        /// </remarks>
+        public bool EndOfSequence
+        {
+            get
+            {
+                if (midiFile == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return msgIndex == midiFile.Messages.Length;
+                }
             }
         }
 

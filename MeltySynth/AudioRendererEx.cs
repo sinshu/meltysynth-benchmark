@@ -21,6 +21,11 @@ namespace MeltySynth
         /// </remarks>
         public static void RenderInterleaved(this IAudioRenderer renderer, Span<float> destination)
         {
+            if (renderer == null)
+            {
+                throw new ArgumentNullException(nameof(renderer));
+            }
+
             if (destination.Length % 2 != 0)
             {
                 throw new ArgumentException("The length of the destination buffer must be even.", nameof(destination));
@@ -31,18 +36,23 @@ namespace MeltySynth
 
             var buffer = ArrayPool<float>.Shared.Rent(bufferLength);
 
-            var left = buffer.AsSpan(0, sampleCount);
-            var right = buffer.AsSpan(sampleCount, sampleCount);
-            renderer.Render(left, right);
-
-            var pos = 0;
-            for (var t = 0; t < sampleCount; t++)
+            try
             {
-                destination[pos++] = left[t];
-                destination[pos++] = right[t];
-            }
+                var left = buffer.AsSpan(0, sampleCount);
+                var right = buffer.AsSpan(sampleCount, sampleCount);
+                renderer.Render(left, right);
 
-            ArrayPool<float>.Shared.Return(buffer);
+                var pos = 0;
+                for (var t = 0; t < sampleCount; t++)
+                {
+                    destination[pos++] = left[t];
+                    destination[pos++] = right[t];
+                }
+            }
+            finally
+            {
+                ArrayPool<float>.Shared.Return(buffer);
+            }
         }
 
         /// <summary>
@@ -58,21 +68,31 @@ namespace MeltySynth
         /// </remarks>
         public static void RenderMono(this IAudioRenderer renderer, Span<float> destination)
         {
+            if (renderer == null)
+            {
+                throw new ArgumentNullException(nameof(renderer));
+            }
+
             var sampleCount = destination.Length;
             var bufferLength = 2 * destination.Length;
 
             var buffer = ArrayPool<float>.Shared.Rent(bufferLength);
 
-            var left = buffer.AsSpan(0, sampleCount);
-            var right = buffer.AsSpan(sampleCount, sampleCount);
-            renderer.Render(left, right);
-
-            for (var t = 0; t < sampleCount; t++)
+            try
             {
-                destination[t] = (left[t] + right[t]) / 2;
-            }
+                var left = buffer.AsSpan(0, sampleCount);
+                var right = buffer.AsSpan(sampleCount, sampleCount);
+                renderer.Render(left, right);
 
-            ArrayPool<float>.Shared.Return(buffer);
+                for (var t = 0; t < sampleCount; t++)
+                {
+                    destination[t] = (left[t] + right[t]) / 2;
+                }
+            }
+            finally
+            {
+                ArrayPool<float>.Shared.Return(buffer);
+            }
         }
 
         /// <summary>
@@ -89,6 +109,11 @@ namespace MeltySynth
         /// </remarks>
         public static void RenderInterleavedInt16(this IAudioRenderer renderer, Span<short> destination)
         {
+            if (renderer == null)
+            {
+                throw new ArgumentNullException(nameof(renderer));
+            }
+
             if (destination.Length % 2 != 0)
             {
                 throw new ArgumentException("The length of the destination buffer must be even.", nameof(destination));
@@ -99,38 +124,43 @@ namespace MeltySynth
 
             var buffer = ArrayPool<float>.Shared.Rent(bufferLength);
 
-            var left = buffer.AsSpan(0, sampleCount);
-            var right = buffer.AsSpan(sampleCount, sampleCount);
-            renderer.Render(left, right);
-
-            var pos = 0;
-            for (var t = 0; t < sampleCount; t++)
+            try
             {
-                var sampleLeft = (int)(32768 * left[t]);
-                if (sampleLeft < short.MinValue)
-                {
-                    sampleLeft = short.MinValue;
-                }
-                else if (sampleLeft > short.MaxValue)
-                {
-                    sampleLeft = short.MaxValue;
-                }
+                var left = buffer.AsSpan(0, sampleCount);
+                var right = buffer.AsSpan(sampleCount, sampleCount);
+                renderer.Render(left, right);
 
-                var sampleRight = (int)(32768 * right[t]);
-                if (sampleRight < short.MinValue)
+                var pos = 0;
+                for (var t = 0; t < sampleCount; t++)
                 {
-                    sampleRight = short.MinValue;
-                }
-                else if (sampleRight > short.MaxValue)
-                {
-                    sampleRight = short.MaxValue;
-                }
+                    var sampleLeft = (int)(32768 * left[t]);
+                    if (sampleLeft < short.MinValue)
+                    {
+                        sampleLeft = short.MinValue;
+                    }
+                    else if (sampleLeft > short.MaxValue)
+                    {
+                        sampleLeft = short.MaxValue;
+                    }
 
-                destination[pos++] = (short)sampleLeft;
-                destination[pos++] = (short)sampleRight;
+                    var sampleRight = (int)(32768 * right[t]);
+                    if (sampleRight < short.MinValue)
+                    {
+                        sampleRight = short.MinValue;
+                    }
+                    else if (sampleRight > short.MaxValue)
+                    {
+                        sampleRight = short.MaxValue;
+                    }
+
+                    destination[pos++] = (short)sampleLeft;
+                    destination[pos++] = (short)sampleRight;
+                }
             }
-
-            ArrayPool<float>.Shared.Return(buffer);
+            finally
+            {
+                ArrayPool<float>.Shared.Return(buffer);
+            }
         }
 
         /// <summary>
@@ -147,31 +177,41 @@ namespace MeltySynth
         /// </remarks>
         public static void RenderMonoInt16(this IAudioRenderer renderer, Span<short> destination)
         {
+            if (renderer == null)
+            {
+                throw new ArgumentNullException(nameof(renderer));
+            }
+
             var sampleCount = destination.Length;
             var bufferLength = 2 * destination.Length;
 
             var buffer = ArrayPool<float>.Shared.Rent(bufferLength);
 
-            var left = buffer.AsSpan(0, sampleCount);
-            var right = buffer.AsSpan(sampleCount, sampleCount);
-            renderer.Render(left, right);
-
-            for (var t = 0; t < sampleCount; t++)
+            try
             {
-                var sample = (int)(16384 * (left[t] + right[t]));
-                if (sample < short.MinValue)
-                {
-                    sample = short.MinValue;
-                }
-                else if (sample > short.MaxValue)
-                {
-                    sample = short.MaxValue;
-                }
+                var left = buffer.AsSpan(0, sampleCount);
+                var right = buffer.AsSpan(sampleCount, sampleCount);
+                renderer.Render(left, right);
 
-                destination[t] = (short)sample;
+                for (var t = 0; t < sampleCount; t++)
+                {
+                    var sample = (int)(16384 * (left[t] + right[t]));
+                    if (sample < short.MinValue)
+                    {
+                        sample = short.MinValue;
+                    }
+                    else if (sample > short.MaxValue)
+                    {
+                        sample = short.MaxValue;
+                    }
+
+                    destination[t] = (short)sample;
+                }
             }
-
-            ArrayPool<float>.Shared.Return(buffer);
+            finally
+            {
+                ArrayPool<float>.Shared.Return(buffer);
+            }
         }
     }
 }
