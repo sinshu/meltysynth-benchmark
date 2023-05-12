@@ -1,17 +1,17 @@
 ``` ini
 
-BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19043.2130 (21H1/May2021Update)
-Intel Core i7-7700 CPU 3.60GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
-.NET SDK=7.0.100-preview.4.22252.9
-  [Host]   : .NET Core 3.1.30 (CoreCLR 4.700.22.47601, CoreFX 4.700.22.47602), X64 RyuJIT
-  ShortRun : .NET Core 3.1.30 (CoreCLR 4.700.22.47601, CoreFX 4.700.22.47602), X64 RyuJIT
+BenchmarkDotNet=v0.13.5, OS=Windows 11 (10.0.22621.1702/22H2/2022Update/SunValley2)
+12th Gen Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
+.NET SDK=7.0.203
+  [Host]   : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
+  ShortRun : .NET 7.0.5 (7.0.523.17405), X64 RyuJIT AVX2
 
 Job=ShortRun  IterationCount=3  LaunchCount=1  
 WarmupCount=3  
 
 ```
-|                    Method |    Mean |    Error |   StdDev |   Allocated |
-|-------------------------- |--------:|---------:|---------:|------------:|
-|                MeltySynth | 1.130 s | 0.1895 s | 0.0104 s |           - |
-| MeltySynthReverbAndChorus | 1.884 s | 0.2022 s | 0.0111 s |           - |
-|               CSharpSynth | 2.429 s | 0.1492 s | 0.0082 s | 1,063,944 B |
+|                    Method |       Mean |     Error |  StdDev | Allocated |
+|-------------------------- |-----------:|----------:|--------:|----------:|
+|                MeltySynth |   668.7 ms | 151.51 ms | 8.30 ms |     600 B |
+| MeltySynthReverbAndChorus | 1,120.9 ms | 108.53 ms | 5.95 ms |     600 B |
+|               CSharpSynth | 1,594.6 ms |  36.66 ms | 2.01 ms | 1091408 B |
