@@ -4,11 +4,12 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="CSharpSynth\" />
-    <Folder Include="MeltySynth\" />
+    <Folder Include="Original\" />
+    <Folder Include="MemoryMappedFile\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,51 +4,51 @@ using BenchmarkDotNet.Attributes;
 [Config(typeof(BenchmarkConfig))]
 public class Runner : IDisposable
 {
-    private CSharpSynthTest cSharpSynthTest;
-    private MeltySynthTest meltySynthTest;
-    private MeltySynthTest meltySynthTestEffect;
+    private OriginalTest original;
+    private MemoryMappedFileTest mmfOff;
+    private MemoryMappedFileTest mmfOn;
 
     public Runner()
     {
-        meltySynthTest = new MeltySynthTest(false);
-        meltySynthTestEffect = new MeltySynthTest(true);
-        cSharpSynthTest = new CSharpSynthTest();
+        original = new OriginalTest();
+        mmfOff = new MemoryMappedFileTest(false);
+        mmfOn = new MemoryMappedFileTest(true);
     }
 
     [Benchmark]
-    public void MeltySynth()
+    public void Original()
     {
-        meltySynthTest.Run();
+        original.Run();
     }
 
     [Benchmark]
-    public void MeltySynthReverbAndChorus()
+    public void MemoryMapOff()
     {
-        meltySynthTestEffect.Run();
+        mmfOff.Run();
     }
 
     [Benchmark]
-    public void CSharpSynth()
+    public void MemoryMapOn()
     {
-        cSharpSynthTest.Run();
+        mmfOn.Run();
     }
 
     public void Dispose()
     {
-        if (cSharpSynthTest != null)
+        if (original != null)
         {
-            cSharpSynthTest.Dispose();
-            cSharpSynthTest = null;
+            original.Dispose();
+            original = null;
         }
-        if (meltySynthTest != null)
+        if (mmfOff != null)
         {
-            meltySynthTest.Dispose();
-            meltySynthTest = null;
+            mmfOff.Dispose();
+            mmfOff = null;
         }
-        if (meltySynthTestEffect != null)
+        if (mmfOn != null)
         {
-            meltySynthTestEffect.Dispose();
-            meltySynthTestEffect = null;
+            mmfOn.Dispose();
+            mmfOn = null;
         }
     }
 }
